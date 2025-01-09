@@ -11,6 +11,10 @@ export class User extends Document {
 
   @Prop({ required: true })
   username: string;
+
+  @Prop({ default: null }) // Refresh Token 저장 필드
+  refreshToken: string | null;
 }
 
+export type UserDocument = User & Document;
 export const UserSchema = SchemaFactory.createForClass(User);

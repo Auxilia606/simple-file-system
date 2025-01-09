@@ -36,6 +36,12 @@ export class AuthController {
     return this.authService.refresh(refreshToken);
   }
 
+  @Post('logout')
+  async logout(@Body('userId') userId: string) {
+    await this.authService.logout(userId);
+    return { message: 'Logged out successfully' };
+  }
+
   @Post('protected')
   @UseGuards(JwtAuthGuard)
   getProtectedData(@Req() req) {

@@ -7,6 +7,7 @@ import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { RegisterDto } from './dto/register.dto';
 import * as bcrypt from 'bcrypt';
+import { User } from 'src/users/schemas/user.schema';
 
 @Injectable()
 export class AuthService {
@@ -35,7 +36,7 @@ export class AuthService {
     });
   }
 
-  async validateUser(email: string, password: string): Promise<any> {
+  async validateUser(email: string, password: string) {
     const user = await this.usersService.findByEmail(email);
     if (user && (await bcrypt.compare(password, user.password))) {
       delete user.password;
@@ -55,7 +56,7 @@ export class AuthService {
     return { access_token: this.generateAccessToken(payload) };
   }
 
-  async login(user: any) {
+  async login(user: User) {
     const payload = { username: user.email, sub: user.id };
 
     return {
@@ -64,9 +65,18 @@ export class AuthService {
     };
   }
 
-  verifyToken(token: string): any {
+  async logout(userId: string): Promise<void> {
+    await this.usersService.updateRefreshToken(userId, null);
+  }
+
+  verifyToken(token: string) {
     try {
-      return this.jwtService.verify(token); // 유효성 검증
+      return this.jwtService.verify<{
+        exp: number;
+        iat: number;
+        sub: string;
+        username: string;
+      }>(token); // 유효성 검증
     } catch {
       throw new UnauthorizedException('Invalid or expired token');
     }
