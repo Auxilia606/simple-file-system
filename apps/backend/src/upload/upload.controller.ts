@@ -1,12 +1,12 @@
 import {
   Controller,
   Post,
-  UploadedFile,
+  UploadedFiles,
   UseInterceptors,
   BadRequestException,
   UseGuards,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FilesInterceptor } from '@nestjs/platform-express';
 import { UploadService } from './upload.service';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
@@ -14,8 +14,9 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 export class UploadController {
   constructor(private readonly uploadService: UploadService) {}
 
-  private static createFileInterceptor(uploadService: UploadService) {
-    return FileInterceptor('file', {
+  private static createFilesInterceptor(uploadService: UploadService) {
+    return FilesInterceptor('files', 10, {
+      // 'files' 필드명과 최대 파일 개수 설정
       storage: uploadService.getStorageConfig(),
       limits: { fileSize: 10 * 1024 * 1024 }, // 파일 크기 제한
       fileFilter: (req, file: Express.Multer.File, callback) => {
@@ -31,11 +32,15 @@ export class UploadController {
 
   @UseGuards(JwtAuthGuard) // JWT 인증 Guard 적용
   @Post('image')
-  @UseInterceptors(UploadController.createFileInterceptor(new UploadService()))
-  uploadFile(@UploadedFile() file: Express.Multer.File) {
-    if (!file) {
-      throw new BadRequestException('No file uploaded or invalid file format.');
+  @UseInterceptors(UploadController.createFilesInterceptor(new UploadService()))
+  uploadFiles(@UploadedFiles() files: Express.Multer.File[]) {
+    if (!files || files.length === 0) {
+      throw new BadRequestException(
+        'No files uploaded or invalid file format.',
+      );
     }
-    return this.uploadService.getResponse(file); // 서비스에서 응답 생성
+
+    // 서비스에서 각 파일에 대한 응답 생성
+    return files.map((file) => this.uploadService.getResponse(file));
   }
 }
