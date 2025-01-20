@@ -4,6 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "dev:f": "cd apps/frontend && npm run dev",
+    "dev:b": "cd apps/backend && npm run start",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
