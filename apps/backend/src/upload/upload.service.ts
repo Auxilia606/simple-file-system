@@ -8,7 +8,10 @@ export class UploadService {
     return diskStorage({
       destination: './uploads/images', // 파일 저장 경로
       filename: (req, file, callback) => {
-        const originalName = file.originalname.split('.')[0];
+        const decodedName = Buffer.from(file.originalname, 'latin1').toString(
+          'utf8',
+        ); // utf8 형식으로 decode
+        const originalName = decodedName.split('.')[0];
         const uniqueName = `${originalName}-${Date.now()}${extname(file.originalname)}`;
         callback(null, uniqueName); // 고유 파일 이름 생성
       },

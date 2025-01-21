@@ -9,7 +9,15 @@ import {
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { UploadService } from './upload.service';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 
+@ApiTags('UPLOAD 서비스') // Swagger 태그 추가
 @Controller('upload')
 export class UploadController {
   constructor(private readonly uploadService: UploadService) {}
@@ -32,6 +40,27 @@ export class UploadController {
 
   @UseGuards(JwtAuthGuard) // JWT 인증 Guard 적용
   @Post('image')
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: '이미지 업로드',
+    description: '이미지를 업로드 합니다.',
+  })
+  @ApiConsumes('multipart/form-data') // Swagger에서 파일 업로드를 지원하는 형식
+  @ApiBody({
+    description: '업로드할 파일 목록',
+    schema: {
+      type: 'object',
+      properties: {
+        files: {
+          type: 'array',
+          items: {
+            type: 'string',
+            format: 'binary', // 파일 업로드를 나타내는 Swagger 형식
+          },
+        },
+      },
+    },
+  })
   @UseInterceptors(UploadController.createFilesInterceptor(new UploadService()))
   uploadFiles(@UploadedFiles() files: Express.Multer.File[]) {
     if (!files || files.length === 0) {
