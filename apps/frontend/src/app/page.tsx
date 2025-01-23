@@ -1,5 +1,13 @@
 import { Stack } from "@mui/material";
+import Link from "next/link";
+import { redirect } from "next/navigation";
 
 export default function Home() {
-  return <Stack>안녕하세요!</Stack>;
+  redirect("/login");
+
+  return (
+    <Stack>
+      <Link href="/login">로그인</Link>
+    </Stack>
+  );
 }
