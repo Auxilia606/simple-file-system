@@ -14,7 +14,11 @@ export class DirectoryService {
   ) {}
 
   async createRootDirectory(userId: string) {
-    const directory = new this.directoryModel({ name: userId, parentId: null });
+    const directory = new this.directoryModel({
+      name: 'ROOT',
+      parentId: null,
+      createdBy: userId,
+    });
     return directory.save();
   }
 
@@ -49,7 +53,11 @@ export class DirectoryService {
       );
     }
 
-    const directory = new this.directoryModel({ name, parentId, userId });
+    const directory = new this.directoryModel({
+      name,
+      parentId,
+      createdBy: userId,
+    });
     return directory.save();
   }
 
@@ -59,8 +67,11 @@ export class DirectoryService {
     return !invalidChars.test(name); // 금지된 문자가 없으면 true
   }
 
-  async getDirectories(parentId: string | null = null): Promise<Directory[]> {
-    return this.directoryModel.find({ parentId }).exec();
+  async getDirectories(
+    parentId: string | null = null,
+    userId: string,
+  ): Promise<Directory[]> {
+    return this.directoryModel.find({ parentId, createdBy: userId }).exec();
   }
 
   async updateDirectory(id: string, name: string): Promise<Directory> {

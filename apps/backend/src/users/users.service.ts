@@ -3,15 +3,19 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from './schemas/user.schema';
 import * as bcrypt from 'bcrypt';
+import { DirectoryService } from 'src/directory/directory.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<User>,
+    private readonly directoryService: DirectoryService,
   ) {}
 
   async create(userData: Partial<User>): Promise<User> {
     const newUser = new this.userModel(userData);
+    this.directoryService.createRootDirectory(newUser._id);
+
     return newUser.save();
   }
 

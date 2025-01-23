@@ -18,3 +18,12 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     return { userId: payload.sub, username: payload.username };
   }
 }
+
+export interface AuthenticatedRequest extends Request {
+  user: {
+    userId: string;
+    username: string; // 필요에 따라 사용자 정보를 추가
+    email?: string;
+    roles?: string[];
+  };
+}

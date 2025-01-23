@@ -17,9 +17,10 @@ import {
   ApiBody,
   ApiQuery,
   ApiParam,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { User } from 'src/users/schemas/user.schema';
+import { AuthenticatedRequest } from 'src/auth/jwt-strategy/jwt-strategy';
 
 @ApiTags('DIRECTORY 서비스') // Swagger 태그 추가
 @Controller('directories')
@@ -28,6 +29,7 @@ export class DirectoryController {
 
   @UseGuards(JwtAuthGuard)
   @Post()
+  @ApiBearerAuth()
   @ApiOperation({
     summary: '디렉토리 생성',
     description: '새로운 디렉토리를 생성합니다.',
@@ -44,12 +46,18 @@ export class DirectoryController {
   createDirectory(
     @Body('name') name: string,
     @Body('parentId') parentId: string | null,
-    @Request() req: User, // 사용자 정보가 포함된 요청 객체
+    @Request() req: AuthenticatedRequest, // 사용자 정보가 포함된 요청 객체
   ) {
-    return this.directoryService.createDirectory(name, parentId, req._id);
+    return this.directoryService.createDirectory(
+      name,
+      parentId,
+      req.user.userId,
+    );
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get()
+  @ApiBearerAuth()
   @ApiOperation({
     summary: '디렉토리 조회',
     description: '특정 부모 디렉토리 아래의 디렉토리를 조회합니다.',
@@ -60,8 +68,11 @@ export class DirectoryController {
     type: 'string',
     description: '부모 디렉토리 ID',
   })
-  getDirectories(@Query('parentId') parentId: string | null) {
-    return this.directoryService.getDirectories(parentId);
+  getDirectories(
+    @Query('parentId') parentId: string | null,
+    @Request() req: AuthenticatedRequest, // 사용자 정보가 포함된 요청 객체
+  ) {
+    return this.directoryService.getDirectories(parentId, req.user.userId);
   }
 
   @Put(':id')
