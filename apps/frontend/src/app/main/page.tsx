@@ -3,9 +3,8 @@ import MainLogo from "@/widget/MainLogo";
 import MainSideAdd from "@/widget/MainSideAdd";
 import MainSideBar from "@/widget/MainSideBar";
 import { Box, Stack } from "@mui/material";
-import { PropsWithChildren } from "react";
 
-export default function Home({ children }: PropsWithChildren) {
+export default function Home() {
   return (
     <Box
       sx={{ height: "100%" }}
@@ -30,7 +29,7 @@ export default function Home({ children }: PropsWithChildren) {
       <Stack gridArea="navp">
         <MainSideBar />
       </Stack>
-      <Stack gridArea="vwgr">{children}</Stack>
+      <Stack gridArea="vwgr">children</Stack>
     </Box>
   );
 }
